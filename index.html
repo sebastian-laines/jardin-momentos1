@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Jardín de Nuestros Momentos</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!-- Fuente para el título -->
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+  <!-- Font Awesome for icons (sin integrity para evitar errores) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <!-- Canvas Confetti Library -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+  <style>
+    :root {
+      --color-fondo: #a8e6cf;
+      --color-fondo-secundario: #fdffab;
+      --color-primario: #ff69b4;
+      --color-texto: #343c40;
+      --color-blanco: #ffffff;
+    }
+    /* Dark mode variables */
+    .dark-mode {
+      --color-fondo: #333;
+      --color-fondo-secundario: #555;
+      --color-texto: #f0f0f0;
+    }
+    /* Global Styles */
+    body {
+      background: linear-gradient(to bottom, var(--color-fondo), var(--color-fondo-secundario));
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      color: var(--color-texto);
+      cursor: url('cursor.png'), auto; /* Asegúrate de tener 'cursor.png' o quita esta línea */
+      transition: background 0.5s, color 0.5s;
+    }
+    p {
+      font-family: 'Times New Roman', Times, serif;
+      font-size: 1.5em;
+      margin-bottom: 1em;
+    }
+    header, footer {
+      padding: 20px;
+    }
+    header h1 {
+      font-family: 'Pacifico', cursive;
+      margin: 0;
+    }
+    /* Mensaje de felicitación adicional */
+    header h2 {
+      font-family: 'Pacifico', cursive;
+      margin: 10px 0 20px;
+      color: var(--color-primario);
+      font-size: 2em;
+    }
+    main {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .jardin {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+      gap: 20px;
+      margin: 20px 0;
+    }
+    .flor {
+      font-size: 3em;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      animation: flotar 3s ease-in-out infinite;
+      position: relative;
+    }
+    .flor:hover {
+      transform: scale(1.2) rotate(15deg);
+    }
+    /* Tooltip usando pseudo-elemento */
+    .flor::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      bottom: -30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--color-primario);
+      color: var(--color-blanco);
+      padding: 5px 10px;
+      border-radius: 5px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+      font-size: 0.8em;
+      white-space: nowrap;
+    }
+    .flor:hover::after {
+      opacity: 1;
+    }
+    #mensaje {
+      background: rgba(255, 255, 255, 0.9);
+      padding: 20px;
+      border-radius: 15px;
+      margin: 30px auto;
+      max-width: 600px;
+      min-height: 100px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+      opacity: 0;
+      transition: opacity 0.5s;
+    }
+    .mostrar {
+      opacity: 1 !important;
+    }
+    @keyframes flotar {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
+    }
+    .corazon-final {
+      font-size: 4em;
+      color: var(--color-primario);
+      margin-top: 50px;
+      animation: latido 1.2s infinite;
+    }
+    @keyframes latido {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.3); }
+      100% { transform: scale(1); }
+    }
+    /* Modal Styles */
+    .modal {
+      display: none; 
+      position: fixed;
+      z-index: 100;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background: rgba(0, 0, 0, 0.6);
+    }
+    .modal-content {
+      background: var(--color-blanco);
+      margin: 10% auto;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 90%;
+      position: relative;
+    }
+    .close {
+      position: absolute;
+      top: 10px;
+      right: 20px;
+      font-size: 2em;
+      cursor: pointer;
+    }
+    /* Controles de galería en modal */
+    .gallery-controls {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 10px;
+    }
+    .gallery-btn {
+      background: var(--color-primario);
+      color: var(--color-blanco);
+      border: none;
+      padding: 5px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1em;
+    }
+    /* Botones */
+    .reset-btn, .toggle-btn {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 1em;
+      cursor: pointer;
+      border: none;
+      background: var(--color-primario);
+      color: var(--color-blanco);
+      border-radius: 5px;
+      transition: background 0.3s ease;
+    }
+    .reset-btn:hover, .toggle-btn:hover {
+      background: #e05a8c;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🌼 Toca cada flor para descubrir por qué te amo 🌼</h1>
+    <!-- Mensaje de felicitación agregado -->
+    <h2>Feliz cumpleaños al amor de mi vida</h2>
+    <!-- Botón para alternar modo oscuro -->
+    <button class="toggle-btn" onclick="toggleDarkMode()">Modo Oscuro</button>
+  </header>
+  <main>
+    <div class="jardin">
+      <div class="flor" data-tooltip="Descubre mi primer motivo" onclick="mostrarMensaje(0)">🌹</div>
+      <div class="flor" data-tooltip="Descubre mi segundo motivo" onclick="mostrarMensaje(1)">🌺</div>
+      <div class="flor" data-tooltip="Descubre mi tercer motivo" onclick="mostrarMensaje(2)">🌻</div>
+      <div class="flor" data-tooltip="Descubre mi cuarto motivo" onclick="mostrarMensaje(3)">🌷</div>
+      <div class="flor" data-tooltip="Descubre mi quinto motivo" onclick="mostrarMensaje(4)">🪷</div>
+      <div class="flor" data-tooltip="Descubre mi sexto motivo" onclick="mostrarMensaje(5)">🏵️</div>
+    </div>
+    <div id="mensaje"></div>
+    <div id="corazon-final" class="corazon-final" style="display: none;">❤️</div>
+    
+    <!-- Botón para reiniciar mensajes -->
+    <button class="reset-btn" onclick="resetear()">Reiniciar</button>
+    
+    <!-- Botón para ver la galería de fotos en un modal -->
+    <button class="reset-btn" onclick="abrirModal()">Ver Fotos Especiales</button>
+    
+    <!-- Modal con galería de fotos -->
+    <div id="modal" class="modal" aria-hidden="true">
+      <div class="modal-content">
+        <span class="close" onclick="cerrarModal()">&times;</span>
+        <!-- Imagen actual de la galería -->
+        <img id="galleryImage" src="fotitoEspecial1.jpg" alt="Foto Especial" style="width: 100%; border-radius: 10px;">
+        <div class="gallery-controls">
+          <button class="gallery-btn" onclick="prevImage()">&#8592; Anterior</button>
+          <button class="gallery-btn" onclick="nextImage()">Siguiente &#8594;</button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Audio de fondo (sin controles visibles) -->
+    <audio id="bgMusic" src="Vicente Fernández - Las Mañanitas (Letra _ Lyrics).mp3" autoplay loop></audio>
+    <!-- Botón para pausar/reproducir la música con ícono -->
+    <button class="reset-btn" onclick="toggleMusic(event)">
+      <i id="musicIcon" class="fas fa-pause"></i> Música
+    </button>
+  </main>
+  <footer>
+    <p>Lunes 17 de Marzo del 2025, tu cumpleaños número 21 mi vida ❤️</p>
+  </footer>
+  
+  <script>
+    // Array de mensajes
+    const mensajes = [
+      "Por tu sonrisa que me vuelve loco, en la cúal jamás dejo de pensar, la sonrisa más y única preciosa que existe 🌞",
+      "Por la enorme inteligencia que reside en ti, es impresionante ver como resuelves los problemas y siempre sales adelante de todos ellos mi amor ✨",
+      "Por tu corazón bondadoso y empático que siempre procura el bienestar de los demás 🥰",
+      "Por las aventuras que hemos vivido y las que nos faltan por vivir, juntos hasta el fin del universo mi cielo 🌍",
+      "Por ser mi apoyo incondicional en cada paso, por motivarme, inspirarme y alentarme a ser mejor en cada aspecto de la vida 🫂",
+      "Y simplemente... ¡por ser TÚ!, la mujer y persona más y única hermosa, perfecta, preciosa, guapa, linda, bonita, chula, divina, extraordinaria, increíble que existe mi amor 💖"
+    ];
+    
+    let contadorClicks = 0;
+    
+    function mostrarMensaje(indice) {
+      const mensajeDiv = document.getElementById('mensaje');
+      mensajeDiv.innerHTML = mensajes[indice];
+      mensajeDiv.classList.add('mostrar');
+      
+      contadorClicks++;
+      if (contadorClicks === mensajes.length) {
+        document.getElementById('corazon-final').style.display = 'block';
+        // Activar confeti cuando se muestran todos los mensajes
+        confetti({
+          particleCount: 100,
+          spread: 70,
+          origin: { y: 0.6 }
+        });
+        setTimeout(() => {
+          alert("¡Has encontrado todos los mensajes! Eres el mejor regalo de mi vida 💐");
+        }, 1000);
+      }
+    }
+    
+    function resetear() {
+      document.getElementById('mensaje').innerHTML = '';
+      document.getElementById('mensaje').classList.remove('mostrar');
+      contadorClicks = 0;
+      document.getElementById('corazon-final').style.display = 'none';
+    }
+    
+    // Galería de imágenes en el modal
+    const galleryImages = [
+      "fotitoEspecial1.jpg",
+      "fotitoEspecial2.jpg",
+      "fotitoEspecial3.jpg"
+    ];
+    let currentImageIndex = 0;
+    
+    function abrirModal() {
+      document.getElementById('modal').style.display = 'block';
+      actualizarImagenGaleria();
+      document.getElementById('modal').setAttribute("aria-hidden", "false");
+    }
+    
+    function cerrarModal() {
+      document.getElementById('modal').style.display = 'none';
+      document.getElementById('modal').setAttribute("aria-hidden", "true");
+    }
+    
+    function nextImage() {
+      currentImageIndex = (currentImageIndex + 1) % galleryImages.length;
+      actualizarImagenGaleria();
+    }
+    
+    function prevImage() {
+      currentImageIndex = (currentImageIndex - 1 + galleryImages.length) % galleryImages.length;
+      actualizarImagenGaleria();
+    }
+    
+    function actualizarImagenGaleria() {
+      const galleryImage = document.getElementById('galleryImage');
+      galleryImage.src = galleryImages[currentImageIndex];
+    }
+    
+    // Control de la música de fondo con ícono
+    const musica = document.getElementById('bgMusic');
+    let musicaPausada = false;
+    function toggleMusic(event) {
+      const musicIcon = document.getElementById('musicIcon');
+      if (musicaPausada) {
+        musica.play();
+        musicaPausada = false;
+        musicIcon.className = "fas fa-pause";
+      } else {
+        musica.pause();
+        musicaPausada = true;
+        musicIcon.className = "fas fa-play";
+      }
+    }
+    
+    // Función para alternar el modo oscuro
+    function toggleDarkMode() {
+      document.body.classList.toggle('dark-mode');
+    }
+    
+    // Efecto de aparición para el título
+    const titulo = document.querySelector('header h1');
+    titulo.style.opacity = 0;
+    setTimeout(() => {
+      titulo.style.transition = 'opacity 2s';
+      titulo.style.opacity = 1;
+    }, 500);
+  </script>
+</body>
+</html>
