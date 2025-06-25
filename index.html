@@ -248,13 +248,18 @@
     ];
     
     let contadorClicks = 0;
+    // Array para registrar cuáles flores ya fueron pulsadas
+    const floresClickeadas = new Array(mensajes.length).fill(false);
     
     function mostrarMensaje(indice) {
       const mensajeDiv = document.getElementById('mensaje');
       mensajeDiv.innerHTML = mensajes[indice];
       mensajeDiv.classList.add('mostrar');
       
-      contadorClicks++;
+      if (!floresClickeadas[indice]) {
+        floresClickeadas[indice] = true;
+        contadorClicks++;
+      }
       if (contadorClicks === mensajes.length) {
         document.getElementById('corazon-final').style.display = 'block';
         // Activar confeti cuando se muestran todos los mensajes
@@ -273,6 +278,7 @@
       document.getElementById('mensaje').innerHTML = '';
       document.getElementById('mensaje').classList.remove('mostrar');
       contadorClicks = 0;
+      floresClickeadas.fill(false);
       document.getElementById('corazon-final').style.display = 'none';
     }
     
